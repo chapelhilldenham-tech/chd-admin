@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102530" />
+    <title>CHD Research — Admin</title>
+    <!-- Design system: copied verbatim from PHP portal -->
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/dark.css" />
+    <style>
+      @font-face { font-family:"Playfair Display"; src:url("/assets/fonts/playfair-display.ttf"); font-display:swap; }
+      @font-face { font-family:"Calibri"; src:url("/assets/fonts/calibri.ttf"); font-display:swap; }
+      @font-face { font-family:"IBM Plex Mono"; src:url("/assets/fonts/ibm-plex-mono.ttf"); font-display:swap; }
+      .loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--chd-navy);color:rgba(255,255,255,.5);font-family:"IBM Plex Mono",monospace;font-size:13px}
+      .admin-nav-badge{background:var(--chd-bronze);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:2px;margin-left:auto;font-family:"IBM Plex Mono",monospace}
+      .admin-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+      @media(max-width:1023px){.admin-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+      .admin-kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);padding:18px}
+      .admin-kpi-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--chd-bronze-soft);margin-bottom:6px}
+      .admin-kpi-val{display:block;font-family:"IBM Plex Mono",monospace;font-size:28px;font-weight:600;color:#fff;line-height:1}
+      .admin-kpi-sub{display:block;font-size:11px;color:rgba(255,255,255,.4);margin-top:6px}
+      .admin-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:20px;margin-bottom:16px}
+      .admin-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+      .admin-card-head h3{font-family:"Playfair Display",serif;font-size:16px;font-weight:700;color:#fff}
+      .admin-table{width:100%;border-collapse:collapse}
+      .admin-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.35);padding:0 12px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
+      .admin-table td{padding:12px;border-bottom:1px solid rgba(255,255,255,.07);font-size:13px;color:rgba(255,255,255,.82);vertical-align:middle}
+      .admin-table tr:last-child td{border-bottom:none}
+      .admin-table tr:hover td{background:rgba(255,255,255,.03)}
+      .admin-td-title{font-size:13px;font-weight:600;color:#fff;line-height:1.3;max-width:260px}
+      .admin-td-cat{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--chd-bronze);font-weight:700;margin-top:2px}
+      .admin-pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.04em}
+      .pill-pub{background:#e6f6ec;color:#136b35}
+      .pill-staged{background:#fff3cd;color:#856404}
+      .pill-draft{background:rgba(255,255,255,.1);color:rgba(255,255,255,.55)}
+      .pill-arch{background:#f8d7da;color:#842029}
+      .pill-active{background:rgba(185,114,49,.25);color:var(--chd-bronze-soft)}
+      .admin-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.04em;cursor:pointer;border:none;transition:all .13s;font-family:inherit}
+      .admin-btn-bronze{background:var(--chd-bronze);color:#fff}
+      .admin-btn-bronze:hover{background:#a5631e}
+      .admin-btn-sm{padding:5px 11px;font-size:11px}
+      .admin-btn-outline{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2)}
+      .admin-btn-outline:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+      .admin-btn-danger{background:transparent;color:#e05252;border:1px solid rgba(224,82,82,.35)}
+      .admin-icon-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);font-size:15px;padding:4px 6px;border-radius:2px}
+      .admin-icon-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+      .admin-icon-btn.del:hover{color:#e05252}
+      .admin-td-actions{display:flex;align-items:center;gap:5px;white-space:nowrap}
+      .admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+      .admin-form-full{grid-column:1/-1}
+      .admin-field{margin-bottom:0}
+      .admin-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-bottom:5px;display:block}
+      .admin-field input,.admin-field select,.admin-field textarea{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;min-height:40px;padding:9px 12px;width:100%;border-radius:2px;font:inherit}
+      .admin-field input:focus,.admin-field select:focus,.admin-field textarea:focus{outline:none;border-color:var(--chd-bronze)}
+      .admin-field textarea{min-height:80px;resize:vertical}
+      .admin-field select option{background:var(--chd-navy)}
+      .drop-zone{border:1px dashed var(--chd-bronze);background:rgba(185,114,49,.08);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer}
+      .drop-zone:hover{background:rgba(185,114,49,.13)}
+      .admin-inline-btns{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);margin-top:14px}
+      .admin-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:18px}
+      .admin-tab{padding:9px 16px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:rgba(255,255,255,.42);border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:.03em;font-family:inherit}
+      .admin-tab.active{color:#fff;border-bottom-color:var(--chd-bronze)}
+      .admin-filter-row{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+      .admin-filter-row input,.admin-filter-row select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;min-height:38px;padding:7px 12px;border-radius:2px;font:inherit;font-size:13px}
+      .admin-filter-row input::placeholder{color:rgba(255,255,255,.3)}
+      .admin-filter-row select option{background:var(--chd-navy)}
+      .admin-series-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+      .admin-series-row:hover{background:rgba(255,255,255,.03)}
+      .admin-series-key{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--chd-bronze);font-weight:600}
+      .admin-series-val{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:600;color:#fff;text-align:right}
+      .admin-inbox-item{display:grid;grid-template-columns:8px 1fr auto auto;gap:10px;align-items:start;padding:12px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer}
+      .admin-inbox-item:hover{background:rgba(255,255,255,.03)}
+      .admin-inbox-dot{width:7px;height:7px;background:var(--chd-bronze);border-radius:50%;margin-top:5px;flex-shrink:0}
+      .admin-inbox-dot.read{background:transparent}
+      .error-msg{background:rgba(224,82,82,.15);border:1px solid rgba(224,82,82,.3);color:#e88;padding:10px 14px;border-radius:2px;font-size:13px;margin-bottom:14px}
+      .success-msg{background:rgba(19,107,53,.12);border:1px solid rgba(19,107,53,.3);color:#4ade80;padding:10px 14px;border-radius:2px;font-size:13px;margin-bottom:14px}
+      .bar-row{display:flex;align-items:flex-end;gap:10px;height:90px;padding:4px 0 20px}
+      .bar-col{background:rgba(185,114,49,.25);border-radius:2px 2px 0 0;flex:1;position:relative;cursor:pointer;transition:background .15s}
+      .bar-col:hover{background:var(--chd-bronze)}
+      .bar-val{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:9px;color:rgba(255,255,255,.5);white-space:nowrap}
+      .bar-lbl{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(255,255,255,.4);white-space:nowrap}
+      .analyst-card-photo-placeholder{background:var(--chd-navy);display:flex;align-items:center;justify-content:center;font-family:"Playfair Display",serif;font-size:22px;font-weight:700;color:var(--chd-bronze-soft);min-height:140px}
+      .admin-topbar-actions{display:flex;align-items:center;gap:12px}
+    </style>
+  </head>
+  <body class="admin-shell">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
